@@ -1,0 +1,42 @@
+services:
+  app:
+    build: .
+    image: private-chat:latest
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - TRUST_PROXY=1
+      - NODE_ENV=production
+    volumes:
+      - chat-data:/app/data
+      - chat-uploads:/app/uploads
+      - chat-backups:/app/backups
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  backup:
+    image: alpine:3
+    restart: unless-stopped
+    depends_on:
+      - app
+    volumes:
+      - chat-data:/data:ro
+      - chat-backups:/backups
+    command: >
+      sh -c 'apk add --no-cache sqlite tzdata >/dev/null &&
+      while true; do
+        ts=$$(date -u +%Y%m%dT%H%M%SZ);
+        sqlite3 /data/securechat.sqlite ".backup /backups/securechat-$$ts.sqlite" || true;
+        find /backups -type f -name "securechat-*.sqlite" -mtime +14 -delete;
+        sleep 86400;
+      done'
+
+volumes:
+  chat-data:
+  chat-uploads:
+  chat-backups:

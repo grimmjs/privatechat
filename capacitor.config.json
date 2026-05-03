@@ -1,0 +1,21 @@
+{
+  "appId": "com.securechat.app",
+  "appName": "Private Chat",
+  "webDir": "public",
+  "android": {
+    "allowMixedContent": false
+  },
+  "ios": {
+    "limitsNavigationsToAppBoundDomains": true
+  },
+  "server": {
+    "androidScheme": "https",
+    "iosScheme": "https",
+    "cleartext": false
+  },
+  "plugins": {
+    "PushNotifications": { "presentationOptions": ["badge", "sound", "alert"] },
+    "LocalNotifications": { "smallIcon": "ic_stat_icon", "iconColor": "#3B82F6" },
+    "App": { "launchUrl": "/" }
+  }
+}

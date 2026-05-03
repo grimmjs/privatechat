@@ -1,0 +1,24 @@
+qu# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+
+# Uploads and data (se non vuoi versionare i file caricati dagli utenti)
+uploads/
+data/
+# Ignore SQLite data files but keep the database/ source code
+database/*.sqlite
+database/*.sqlite-journal
+database/*.db
+
+# Logs
+logs/
+*.log
+
+# Optional
+.DS_Store
+Thumbs.db

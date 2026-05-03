@@ -1,0 +1,49 @@
+{
+  "name": "private-chat",
+  "version": "2.0.0",
+  "description": "End-to-end encrypted private chat with Postgres / SQLite, Redis, and Signal-grade crypto",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "backup": "node scripts/backup.js",
+    "syntax": "find . -name node_modules -prune -o -name '*.js' -print -exec node --check {} ;",
+    "test": "jest",
+    "test:e2e": "playwright test",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1041.0",
+    "@aws-sdk/s3-request-presigner": "^3.1041.0",
+    "@capacitor/android": "^6.2.1",
+    "@capacitor/app": "^6.0.3",
+    "@capacitor/core": "^6.2.1",
+    "@capacitor/ios": "^6.2.1",
+    "@capacitor/push-notifications": "^6.0.5",
+    "@sentry/browser": "^10.51.0",
+    "@sentry/node": "^10.51.0",
+    "express": "^4.18.2",
+    "express-rate-limit": "^8.4.1",
+    "ioredis": "^5.3.2",
+    "pg": "^8.11.3",
+    "pino": "^8.17.2",
+    "prom-client": "^15.1.0",
+    "rate-limit-redis": "^4.3.1",
+    "sqlite3": "^5.1.6",
+    "web-push": "^3.6.7",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.2.1",
+    "@playwright/test": "^1.59.1",
+    "jest": "^29.7.0",
+    "sharp": "^0.34.5"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/public/"
+    ]
+  }
+}
