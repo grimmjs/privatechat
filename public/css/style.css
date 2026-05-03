@@ -671,7 +671,12 @@ textarea { resize: none; }
 .bubble.me .reply-quote { background: rgba(255, 255, 255, 0.15); border-left-color: rgba(255, 255, 255, 0.5); }
 .bubble.other .reply-quote { border-left-color: var(--primary); background: var(--bg-elev-3); }
 .bubble .reply-quote .quote-author { font-weight: 600; font-size: 11px; opacity: 0.85; display: block; }
-.bubble .reply-quote .quote-text { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.bubble .reply-quote .quote-text {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 /* Status icons (sent/delivered/read) */
 .status-icon { display: inline-flex; align-items: center; }
@@ -751,8 +756,10 @@ textarea { resize: none; }
 .compose-context .ctx-body { flex: 1; min-width: 0; }
 .compose-context .ctx-author { font-weight: 600; color: var(--text); font-size: 12px; }
 .compose-context .ctx-text {
-  display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;
+  display: block;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Search bar */
@@ -1398,13 +1405,17 @@ textarea { resize: none; }
 .link-preview .lp-site { font-size: 11px; opacity: .65; text-transform: uppercase; letter-spacing: .04em; }
 .link-preview .lp-title {
   font-weight: 600; font-size: 13px; margin: 2px 0;
-  display: -webkit-box; -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical; overflow: hidden;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .link-preview .lp-desc {
   font-size: 12px; opacity: .8;
-  display: -webkit-box; -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical; overflow: hidden;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Disappearing-message TTL badge */
