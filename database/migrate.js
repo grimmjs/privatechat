@@ -20,6 +20,7 @@ const path = require("path")
 function pgTransform(sql) {
   return sql
     .replace(/INTEGER PRIMARY KEY AUTOINCREMENT/g, "SERIAL PRIMARY KEY")
+    .replace(/INTEGER/g, "BIGINT")
     .replace(/DEFAULT \(strftime\('%s','now'\) \* 1000\)/g, "DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::bigint")
     .replace(/COLLATE NOCASE/g, "")
     .replace(/INSERT OR IGNORE INTO\s+(\w+)\s+\(([^)]+)\)\s+VALUES\s+\(([^)]+)\)/gi, (match, table, cols, vals) => {

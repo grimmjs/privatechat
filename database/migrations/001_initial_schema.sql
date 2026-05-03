@@ -18,10 +18,10 @@ CREATE TABLE IF NOT EXISTS users (
   identity_pubkey TEXT,
   locale TEXT,
   is_admin INTEGER NOT NULL DEFAULT 0,
-  banned_at INTEGER,
+  banned_at BIGINT,
   ban_reason TEXT,
-  deleted_at INTEGER,
-  created_at INTEGER DEFAULT (strftime('%s','now') * 1000)
+  deleted_at BIGINT,
+  created_at BIGINT DEFAULT (strftime('%s','now') * 1000)
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_username_nocase ON users (username COLLATE NOCASE);
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS friends (
   user_id TEXT NOT NULL,
   friend_id TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'pending',
-  created_at INTEGER DEFAULT (strftime('%s','now') * 1000),
+  created_at BIGINT DEFAULT (strftime('%s','now') * 1000),
   PRIMARY KEY (user_id, friend_id),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (friend_id) REFERENCES users(id) ON DELETE CASCADE
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS friends (
 CREATE TABLE IF NOT EXISTS blocks (
   blocker_id TEXT NOT NULL,
   blocked_id TEXT NOT NULL,
-  created_at INTEGER DEFAULT (strftime('%s','now') * 1000),
+  created_at BIGINT DEFAULT (strftime('%s','now') * 1000),
   PRIMARY KEY (blocker_id, blocked_id),
   FOREIGN KEY (blocker_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (blocked_id) REFERENCES users(id) ON DELETE CASCADE
@@ -56,9 +56,9 @@ CREATE TABLE IF NOT EXISTS reports (
   reason TEXT,
   details TEXT,
   status TEXT DEFAULT 'open',
-  resolved_at INTEGER,
+  resolved_at BIGINT,
   resolution TEXT,
-  created_at INTEGER DEFAULT (strftime('%s','now') * 1000)
+  created_at BIGINT DEFAULT (strftime('%s','now') * 1000)
 );
 
 CREATE INDEX IF NOT EXISTS idx_reports_status ON reports(status);
@@ -70,9 +70,9 @@ CREATE TABLE IF NOT EXISTS sessions (
   device_label TEXT,
   ip TEXT,
   user_agent TEXT,
-  created_at INTEGER NOT NULL,
-  last_seen INTEGER NOT NULL,
-  expires_at INTEGER,
+  created_at BIGINT NOT NULL,
+  last_seen BIGINT NOT NULL,
+  expires_at BIGINT,
   revoked INTEGER NOT NULL DEFAULT 0,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -88,12 +88,12 @@ CREATE TABLE IF NOT EXISTS messages (
   receiver_id TEXT NOT NULL,
   ciphertext TEXT NOT NULL,
   iv TEXT NOT NULL,
-  timestamp INTEGER NOT NULL,
+  timestamp BIGINT NOT NULL,
   status TEXT DEFAULT 'sent',
   reply_to_id INTEGER,
-  edited_at INTEGER,
-  deleted_at INTEGER,
-  expires_at INTEGER,
+  edited_at BIGINT,
+  deleted_at BIGINT,
+  expires_at BIGINT,
   kind TEXT NOT NULL DEFAULT 'text',
   payload TEXT,
   FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS reactions (
   message_id INTEGER NOT NULL,
   user_id TEXT NOT NULL,
   emoji TEXT NOT NULL,
-  created_at INTEGER DEFAULT (strftime('%s','now') * 1000),
+  created_at BIGINT DEFAULT (strftime('%s','now') * 1000),
   PRIMARY KEY (message_id, user_id, emoji),
   FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS polls (
   options TEXT NOT NULL,
   multi INTEGER NOT NULL DEFAULT 0,
   closed INTEGER NOT NULL DEFAULT 0,
-  created_at INTEGER NOT NULL,
+  created_at BIGINT NOT NULL,
   FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE
 );
 
@@ -131,7 +131,7 @@ CREATE TABLE IF NOT EXISTS poll_votes (
   poll_id INTEGER NOT NULL,
   user_id TEXT NOT NULL,
   option_index INTEGER NOT NULL,
-  created_at INTEGER NOT NULL,
+  created_at BIGINT NOT NULL,
   PRIMARY KEY (poll_id, user_id, option_index),
   FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE
 );
@@ -143,10 +143,10 @@ CREATE TABLE IF NOT EXISTS files (
   receiver_id TEXT NOT NULL,
   file_path TEXT NOT NULL,
   original_name TEXT,
-  file_size INTEGER,
+  file_size BIGINT,
   mime_type TEXT,
   encrypted_meta TEXT,
-  timestamp INTEGER NOT NULL,
+  timestamp BIGINT NOT NULL,
   FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -159,7 +159,7 @@ CREATE TABLE IF NOT EXISTS link_previews (
   description TEXT,
   image TEXT,
   site TEXT,
-  created_at INTEGER NOT NULL
+  created_at BIGINT NOT NULL
 );
 
 -- Auth attempts (brute-force protection)
@@ -168,7 +168,7 @@ CREATE TABLE IF NOT EXISTS auth_attempts (
   ip TEXT,
   username TEXT,
   success INTEGER NOT NULL DEFAULT 0,
-  timestamp INTEGER NOT NULL
+  timestamp BIGINT NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_auth_attempts_ip_ts ON auth_attempts (ip, timestamp);
@@ -182,7 +182,7 @@ CREATE TABLE IF NOT EXISTS audit_log (
   ip TEXT,
   user_agent TEXT,
   meta TEXT,
-  timestamp INTEGER NOT NULL,
+  timestamp BIGINT NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
@@ -197,14 +197,14 @@ CREATE TABLE IF NOT EXISTS groups (
   kind TEXT NOT NULL DEFAULT 'group',
   owner_id TEXT NOT NULL,
   invite_code TEXT UNIQUE,
-  created_at INTEGER NOT NULL
+  created_at BIGINT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS group_members (
   group_id TEXT NOT NULL,
   user_id TEXT NOT NULL,
   role TEXT NOT NULL DEFAULT 'member',
-  joined_at INTEGER NOT NULL,
+  joined_at BIGINT NOT NULL,
   PRIMARY KEY (group_id, user_id),
   FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -219,9 +219,9 @@ CREATE TABLE IF NOT EXISTS group_messages (
   kind TEXT NOT NULL DEFAULT 'text',
   payload TEXT,
   reply_to_id INTEGER,
-  timestamp INTEGER NOT NULL,
-  edited_at INTEGER,
-  deleted_at INTEGER,
+  timestamp BIGINT NOT NULL,
+  edited_at BIGINT,
+  deleted_at BIGINT,
   FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE
 );
 
@@ -234,7 +234,7 @@ CREATE TABLE IF NOT EXISTS sticker_packs (
   name TEXT NOT NULL,
   cover TEXT,
   shared INTEGER NOT NULL DEFAULT 0,
-  created_at INTEGER NOT NULL,
+  created_at BIGINT NOT NULL,
   FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -243,7 +243,7 @@ CREATE TABLE IF NOT EXISTS stickers (
   pack_id TEXT NOT NULL,
   data TEXT NOT NULL,
   label TEXT,
-  created_at INTEGER NOT NULL,
+  created_at BIGINT NOT NULL,
   FOREIGN KEY (pack_id) REFERENCES sticker_packs(id) ON DELETE CASCADE
 );
 
@@ -255,7 +255,7 @@ CREATE TABLE IF NOT EXISTS push_subscriptions (
   p256dh TEXT NOT NULL,
   auth TEXT NOT NULL,
   ua TEXT,
-  created_at INTEGER NOT NULL,
+  created_at BIGINT NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -268,7 +268,7 @@ CREATE TABLE IF NOT EXISTS prekeys (
   key_id INTEGER NOT NULL,
   public_key TEXT NOT NULL,
   private_key TEXT,
-  created_at INTEGER NOT NULL,
+  created_at BIGINT NOT NULL,
   UNIQUE(user_id, key_id),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -281,9 +281,9 @@ CREATE TABLE IF NOT EXISTS devices (
   user_id TEXT NOT NULL,
   label TEXT,
   identity_pubkey TEXT,
-  last_seen INTEGER,
+  last_seen BIGINT,
   revoked INTEGER NOT NULL DEFAULT 0,
-  created_at INTEGER NOT NULL,
+  created_at BIGINT NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
