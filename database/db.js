@@ -102,9 +102,37 @@ const MIGRATIONS_DIR = path.join(__dirname, "migrations")
 const helpers = { run, get, all, isPg }
 let initPromise = null
 
+async function fixPostgresTypes() {
+  if (!isPg) return
+  const columnsToFix = [
+    "created_at", "timestamp", "expires_at", "last_seen", 
+    "banned_at", "deleted_at", "edited_at", "joined_at", "resolved_at"
+  ]
+  const tables = ["users", "friends", "blocks", "reports", "sessions", "messages", "reactions", "polls", "poll_votes", "files", "link_previews", "auth_attempts", "audit_log", "groups", "group_members", "group_messages", "sticker_packs", "stickers", "push_subscriptions", "prekeys", "devices"]
+  
+  for (const table of tables) {
+    try {
+      for (const col of columnsToFix) {
+        // Check if table and column exist before altering
+        const check = await get(`
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = $1 AND column_name = $2 AND data_type = 'integer'
+        `, [table, col])
+        if (check) {
+          console.log(`[DB] Fixing type for ${table}.${col} -> BIGINT`)
+          await run(`ALTER TABLE ${table} ALTER COLUMN ${col} TYPE BIGINT`)
+        }
+      }
+    } catch (e) {
+      // Ignore errors (e.g. table doesn't exist yet)
+    }
+  }
+}
+
 async function doInit() {
   const { applied } = await runMigrations(helpers, MIGRATIONS_DIR)
   if (applied.length) console.log("[DB] Applied migrations:", applied.join(", "))
+  if (isPg) await fixPostgresTypes()
 }
 
 function init() {
