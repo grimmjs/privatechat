@@ -12,8 +12,9 @@
  *  - Settings modal: profile (bio/status), change password, audit log,
  *    GDPR export, account deletion
  */
-(function () {
-  "use strict";
+window.addEventListener("DOMContentLoaded", function () {
+  (function () {
+    "use strict";
 
   function $(sel) { return document.querySelector(sel); }
   function $all(sel) { return Array.from(document.querySelectorAll(sel)); }
@@ -1608,4 +1609,5 @@
       ws.send(JSON.stringify({ type: "register", username: me.username, existingId: me.id }));
     });
   }
-})();
+  })();
+});
