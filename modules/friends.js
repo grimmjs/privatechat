@@ -61,6 +61,19 @@ async function acceptFriendRequest(userId, fromId) {
 
   console.log("[friends] acceptFriendRequest: userId=", userId, "fromId=", fromId)
 
+  // Validate both users exist
+  const userExists = await get("SELECT id FROM users WHERE id = ?", [userId])
+  const fromUserExists = await get("SELECT id FROM users WHERE id = ?", [fromId])
+  
+  if (!userExists) {
+    console.error("[friends] userId non esiste:", userId)
+    throw new Error("User non trovato")
+  }
+  if (!fromUserExists) {
+    console.error("[friends] fromId non esiste:", fromId)
+    throw new Error("Utente che ha inviato la richiesta non trovato")
+  }
+
   // Check the request exists (fromId requested userId)
   let req = await get(
     "SELECT * FROM friends WHERE user_id = ? AND friend_id = ? AND status = 'pending'",

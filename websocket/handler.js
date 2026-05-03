@@ -545,12 +545,17 @@ function handleConnection(ws, req, metrics) {
     if (msg.type === "accept_request") {
       try {
         if (!msg.fromId) throw new Error("fromId mancante")
-        console.log("[WS] accept_request: currentUserId=", currentUserId, "fromId=", msg.fromId)
-        await friends.acceptFriendRequest(currentUserId, msg.fromId)
+        console.log("[WS] accept_request: currentUserId=", currentUserId, "fromId=", msg.fromId, "type=", typeof msg.fromId)
+        
+        // Ensure IDs are strings
+        const fromId = String(msg.fromId).trim()
+        if (!fromId || fromId === "undefined") throw new Error("fromId non valido")
+        
+        await friends.acceptFriendRequest(currentUserId, fromId)
         console.log("[WS] accept_request SUCCESS")
         send(ws, "info", { message: "Request accepted" })
         await broadcastFriendUpdate(currentUserId)
-        await broadcastFriendUpdate(msg.fromId)
+        await broadcastFriendUpdate(fromId)
         await notifyFriendsStatus(currentUserId, true)
       } catch (err) {
         console.error("[WS] accept_request ERROR:", err.message, "stack:", err.stack)
