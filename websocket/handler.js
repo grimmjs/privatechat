@@ -416,7 +416,7 @@ function handleConnection(ws, req, metrics) {
     if (msg.type === "publish_pubkey") {
       try {
         await auth.setIdentityPubkey(currentUserId, msg.pubkey)
-        send(ws, "info", { message: "Public key saved" })
+        // send(ws, "info", { message: "Public key saved" })
       } catch (err) {
         send(ws, "error", { message: err.message })
       }
