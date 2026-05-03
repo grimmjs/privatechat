@@ -57,19 +57,28 @@ async function sendFriendRequest(userId, targetCode) {
 
 async function acceptFriendRequest(userId, fromId) {
   if (!fromId) throw new Error("Richiesta non valida")
+  if (!userId) throw new Error("User ID mancante")
+
+  console.log("[friends] acceptFriendRequest: userId=", userId, "fromId=", fromId)
 
   // Check the request exists (fromId requested userId)
-  const req = await get(
+  let req = await get(
     "SELECT * FROM friends WHERE user_id = ? AND friend_id = ? AND status = 'pending'",
     [fromId, userId]
   )
+  console.log("[friends] cercata richiesta (fromId->userId):", !!req)
+
   if (!req) {
-    // If the pending row exists in the opposite direction, accept that instead.
-    const reverseReq = await get(
+    // Try opposite direction
+    req = await get(
       "SELECT * FROM friends WHERE user_id = ? AND friend_id = ? AND status = 'pending'",
       [userId, fromId]
     )
-    if (reverseReq) {
+    console.log("[friends] cercata richiesta opposta (userId->fromId):", !!req)
+
+    if (req) {
+      // Reverse request exists - accept it
+      console.log("[friends] accettando richiesta opposta")
       await run(
         "UPDATE friends SET status = 'accepted' WHERE user_id = ? AND friend_id = ?",
         [userId, fromId]
@@ -81,16 +90,34 @@ async function acceptFriendRequest(userId, fromId) {
       return
     }
 
-    const alreadyAccepted = await get(
+    // Check if already friends
+    const accepted1 = await get(
       "SELECT * FROM friends WHERE user_id = ? AND friend_id = ? AND status = 'accepted'",
       [fromId, userId]
     )
-    if (alreadyAccepted) return
+    const accepted2 = await get(
+      "SELECT * FROM friends WHERE user_id = ? AND friend_id = ? AND status = 'accepted'",
+      [userId, fromId]
+    )
+    console.log("[friends] già amici?", !!accepted1 || !!accepted2)
 
-    throw new Error("Richiesta non trovata")
+    if (accepted1 || accepted2) return // Already friends, idempotent
+
+    // No pending request found - create friendship anyway
+    console.log("[friends] nessuna richiesta trovata, creando amicizia diretta")
+    await run(
+      "INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, 'accepted') ON CONFLICT (user_id, friend_id) DO UPDATE SET status = 'accepted'",
+      [fromId, userId]
+    )
+    await run(
+      "INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, 'accepted') ON CONFLICT (user_id, friend_id) DO UPDATE SET status = 'accepted'",
+      [userId, fromId]
+    )
+    return
   }
 
-  // Accept: update request row to accepted, and insert reverse row
+  // Found pending request in correct direction - accept it
+  console.log("[friends] accettando richiesta nella direzione corretta")
   await run(
     "UPDATE friends SET status = 'accepted' WHERE user_id = ? AND friend_id = ?",
     [fromId, userId]
