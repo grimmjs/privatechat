@@ -808,7 +808,11 @@ window.addEventListener("DOMContentLoaded", function () {
   function renderChat() {
     messagesContainer.innerHTML = "";
     if (!activePeerId) {
-      messagesContainer.innerHTML = '<div class="welcome"><h2>' + escapeHtml(T("welcomePeerHeader")) + "</h2><p>" + escapeHtml(T("selectFriendBody")) + "</p></div>";
+      messagesContainer.innerHTML = '<div class="welcome">' +
+        '<img src="/icons/app-icon.png" class="welcome-branding" alt="Private Chat">' +
+        "<h2>" + escapeHtml(T("welcomeTitle")) + "</h2>" +
+        "<p>" + escapeHtml(T("welcomeBody")) + "</p>" +
+        "</div>";
       messageForm.classList.add("hidden");
       encIndicator.classList.add("hidden");
       return;
