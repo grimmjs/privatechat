@@ -1467,10 +1467,6 @@ html[dir="rtl"] .reply-quote { border-left: none; border-right: 3px solid var(--
 html[dir="rtl"] .session-list li,
 html[dir="rtl"] .audit-list li { flex-direction: row-reverse; }
 
-/* Accent CSS variable (settings sets --primary-h) */
-:root { --primary-h: 217; }
-[data-theme="dark"] { --primary: hsl(var(--primary-h, 217), 85%, 60%); }
-[data-theme="light"] { --primary: hsl(var(--primary-h, 217), 75%, 50%); }
 
 /* Small helpers */
 .btn-sm { padding: 6px 12px; font-size: 13px; }
