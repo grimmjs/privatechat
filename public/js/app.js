@@ -398,7 +398,7 @@ window.addEventListener("DOMContentLoaded", function () {
       renderMyAvatar();
       showToast(T("photoUpdated"), "success");
     } else if (data.type === "profile_updated") {
-      // showToast(T("profileSaved"), "success");
+      showToast(T("profileSaved"), "success");
     } else if (data.type === "friends_update") {
       friends = data.friends || [];
       requests = data.requests || [];
