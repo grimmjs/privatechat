@@ -25,7 +25,7 @@ if (isPg) {
   db = pool
 
   const pgTransform = (sql) => {
-    return sql
+    let transformed = sql
       .replace(/INSERT OR IGNORE INTO\s+(\w+)\s+\(([^)]+)\)\s+VALUES\s+\(([^)]+)\)/gi, (match, table, cols, vals) => {
         return `INSERT INTO ${table} (${cols}) VALUES (${vals}) ON CONFLICT DO NOTHING`
       })
@@ -33,10 +33,14 @@ if (isPg) {
         const setClause = cols.split(",").map((c) => `${c.trim()} = EXCLUDED.${c.trim()}`).join(", ")
         return `INSERT INTO ${table} (${cols}) VALUES (${vals}) ON CONFLICT DO UPDATE SET ${setClause}`
       })
+    
+    // Translate '?' to '$1', '$2', etc. for Postgres
+    let i = 1
+    return transformed.replace(/\?/g, () => `$${i++}`)
   }
 
   run = async (sql, params = []) => {
-    if (isPg) sql = pgTransform(sql)
+    sql = pgTransform(sql)
     const isInsert = /^\s*INSERT\s+INTO\s+/i.test(sql) && !/RETURNING/i.test(sql) && !/ON\s+CONFLICT/i.test(sql)
     if (isInsert) {
       sql = sql.trim().replace(/;?$/, "") + " RETURNING id;"
@@ -47,12 +51,12 @@ if (isPg) {
   }
 
   get = async (sql, params = []) => {
-    const result = await pool.query(sql, params)
+    const result = await pool.query(pgTransform(sql), params)
     return result.rows[0] ?? null
   }
 
   all = async (sql, params = []) => {
-    const result = await pool.query(sql, params)
+    const result = await pool.query(pgTransform(sql), params)
     return result.rows
   }
 } else {
