@@ -5,7 +5,7 @@
 const path = require("path")
 const fs = require("fs")
 
-const DB_DRIVER = (process.env.DB_DRIVER || "sqlite").toLowerCase()
+const DB_DRIVER = (process.env.DB_DRIVER || (process.env.DATABASE_URL ? "pg" : "sqlite")).toLowerCase()
 const isPg = DB_DRIVER === "pg"
 
 let db = null
