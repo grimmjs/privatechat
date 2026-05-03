@@ -27,11 +27,11 @@ if (isPg) {
   const pgTransform = (sql) => {
     let transformed = sql
       .replace(/INSERT OR IGNORE INTO\s+(\w+)\s+\(([^)]+)\)\s+VALUES\s+\(([^)]+)\)/gi, (match, table, cols, vals) => {
-        return `INSERT INTO ${table} (${cols}) VALUES (${vals}) ON CONFLICT DO NOTHING`
+        return `INSERT INTO ${table} (${cols}) VALUES (${vals}) ON CONFLICT (${cols}) DO NOTHING`
       })
       .replace(/INSERT OR REPLACE INTO\s+(\w+)\s+\(([^)]+)\)\s+VALUES\s+\(([^)]+)\)/gi, (match, table, cols, vals) => {
         const setClause = cols.split(",").map((c) => `${c.trim()} = EXCLUDED.${c.trim()}`).join(", ")
-        return `INSERT INTO ${table} (${cols}) VALUES (${vals}) ON CONFLICT DO UPDATE SET ${setClause}`
+        return `INSERT INTO ${table} (${cols}) VALUES (${vals}) ON CONFLICT (${cols}) DO UPDATE SET ${setClause}`
       })
     
     // Translate '?' to '$1', '$2', etc. for Postgres
