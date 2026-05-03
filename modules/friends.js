@@ -56,12 +56,39 @@ async function sendFriendRequest(userId, targetCode) {
 }
 
 async function acceptFriendRequest(userId, fromId) {
+  if (!fromId) throw new Error("Richiesta non valida")
+
   // Check the request exists (fromId requested userId)
   const req = await get(
     "SELECT * FROM friends WHERE user_id = ? AND friend_id = ? AND status = 'pending'",
     [fromId, userId]
   )
-  if (!req) throw new Error("Richiesta non trovata")
+  if (!req) {
+    // If the pending row exists in the opposite direction, accept that instead.
+    const reverseReq = await get(
+      "SELECT * FROM friends WHERE user_id = ? AND friend_id = ? AND status = 'pending'",
+      [userId, fromId]
+    )
+    if (reverseReq) {
+      await run(
+        "UPDATE friends SET status = 'accepted' WHERE user_id = ? AND friend_id = ?",
+        [userId, fromId]
+      )
+      await run(
+        "INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, 'accepted') ON CONFLICT (user_id, friend_id) DO UPDATE SET status = EXCLUDED.status",
+        [fromId, userId]
+      )
+      return
+    }
+
+    const alreadyAccepted = await get(
+      "SELECT * FROM friends WHERE user_id = ? AND friend_id = ? AND status = 'accepted'",
+      [fromId, userId]
+    )
+    if (alreadyAccepted) return
+
+    throw new Error("Richiesta non trovata")
+  }
 
   // Accept: update request row to accepted, and insert reverse row
   await run(
