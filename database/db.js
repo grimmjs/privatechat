@@ -24,7 +24,19 @@ if (isPg) {
   pool = new Pool({ connectionString: conn, ssl: { rejectUnauthorized: false } })
   db = pool
 
+  const pgTransform = (sql) => {
+    return sql
+      .replace(/INSERT OR IGNORE INTO\s+(\w+)\s+\(([^)]+)\)\s+VALUES\s+\(([^)]+)\)/gi, (match, table, cols, vals) => {
+        return `INSERT INTO ${table} (${cols}) VALUES (${vals}) ON CONFLICT DO NOTHING`
+      })
+      .replace(/INSERT OR REPLACE INTO\s+(\w+)\s+\(([^)]+)\)\s+VALUES\s+\(([^)]+)\)/gi, (match, table, cols, vals) => {
+        const setClause = cols.split(",").map((c) => `${c.trim()} = EXCLUDED.${c.trim()}`).join(", ")
+        return `INSERT INTO ${table} (${cols}) VALUES (${vals}) ON CONFLICT DO UPDATE SET ${setClause}`
+      })
+  }
+
   run = async (sql, params = []) => {
+    if (isPg) sql = pgTransform(sql)
     const isInsert = /^\s*INSERT\s+INTO\s+/i.test(sql) && !/RETURNING/i.test(sql) && !/ON\s+CONFLICT/i.test(sql)
     if (isInsert) {
       sql = sql.trim().replace(/;?$/, "") + " RETURNING id;"
