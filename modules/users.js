@@ -35,6 +35,7 @@ async function getPendingRequests(userId) {
      WHERE f.friend_id = ? AND f.status = 'pending'`,
     [userId]
   )
+  console.log("[users] getPendingRequests for userId=", userId, "results=", JSON.stringify(rows))
   return rows
 }
 

@@ -693,6 +693,7 @@ window.addEventListener("DOMContentLoaded", function () {
     requestListEl.innerHTML = "";
     if (requests.length > 0) {
       requests.forEach(function (r) {
+        if (!r.fromId || r.fromId === "undefined") { console.error("[app] Invalid fromId in request:", r); return; }
         var li = document.createElement("li");
         li.className = "request-item";
         var avatar = document.createElement("div");
@@ -747,8 +748,10 @@ window.addEventListener("DOMContentLoaded", function () {
   requestListEl.addEventListener("click", function (e) {
     var btn = e.target.closest("button[data-action]");
     if (!btn) return;
-    if (btn.dataset.action === "accept") send({ type: "accept_request", fromId: btn.dataset.from });
-    else if (btn.dataset.action === "reject") send({ type: "reject_request", fromId: btn.dataset.from });
+    var fromId = btn.dataset.from;
+    if (!fromId || fromId === "undefined") { console.error("[app] Invalid fromId on button:", fromId); return; }
+    if (btn.dataset.action === "accept") send({ type: "accept_request", fromId: fromId });
+    else if (btn.dataset.action === "reject") send({ type: "reject_request", fromId: fromId });
   });
   outgoingListEl.addEventListener("click", function (e) {
     var btn = e.target.closest("button[data-action]");

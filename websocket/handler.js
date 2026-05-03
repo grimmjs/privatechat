@@ -87,6 +87,7 @@ async function broadcastFriendUpdate(userId) {
       users.getPendingRequests(userId),
       users.getOutgoingPendingRequests(userId),
     ])
+    console.log("[WS] broadcastFriendUpdate: incomingReqs=", JSON.stringify(incomingReqs))
     const friendsWithStatus = friendList.map((f) => ({ ...f, online: isOnline(f.id) }))
     sendToUser(userId, {
       type: "friends_update",
