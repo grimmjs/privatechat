@@ -41,7 +41,7 @@ async function sendFriendRequest(userId, targetCode) {
       [target.id, userId]
     )
     await run(
-      "INSERT OR REPLACE INTO friends (user_id, friend_id, status) VALUES (?, ?, 'accepted')",
+      "INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, 'accepted') ON CONFLICT (user_id, friend_id) DO UPDATE SET status = EXCLUDED.status",
       [userId, target.id]
     )
     return { status: 'accepted', target }
@@ -49,7 +49,7 @@ async function sendFriendRequest(userId, targetCode) {
 
   // Create pending request: one row where user_id = sender, friend_id = receiver
   await run(
-    "INSERT OR REPLACE INTO friends (user_id, friend_id, status) VALUES (?, ?, 'pending')",
+    "INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, 'pending') ON CONFLICT (user_id, friend_id) DO UPDATE SET status = EXCLUDED.status",
     [userId, target.id]
   )
   return { status: 'pending', target }
@@ -69,7 +69,7 @@ async function acceptFriendRequest(userId, fromId) {
     [fromId, userId]
   )
   await run(
-    "INSERT OR REPLACE INTO friends (user_id, friend_id, status) VALUES (?, ?, 'accepted')",
+    "INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, 'accepted') ON CONFLICT (user_id, friend_id) DO UPDATE SET status = EXCLUDED.status",
     [userId, fromId]
   )
 }
