@@ -74,22 +74,14 @@ window.addEventListener("DOMContentLoaded", function () {
   var peerStatusEl = $("#peerStatus");
   var peerAvatarEl = $("#peerAvatar");
   var encIndicator = $("#encIndicator");
-  var connectionPill = $("#connectionPill");
-  var connectionLabel = $("#connectionLabel");
+  var toastEl = $("#toast");
+  var typingIndicator = $("#typingIndicator");
+  var typingUsernameEl = $("#typingUsername");
 
   var sidebar = $("#sidebar");
   var sidebarOverlay = $("#sidebarOverlay");
   var openSidebarBtn = $("#openSidebarBtn");
   var closeSidebarBtn = $("#closeSidebarBtn");
-
-  var toastEl = $("#toast");
-  var typingIndicator = $("#typingIndicator");
-  var typingUsernameEl = $("#typingUsername");
-
-  var searchToggleBtn = $("#searchToggleBtn");
-  var searchBar = $("#searchBar");
-  var searchInput = $("#searchInput");
-  var searchCloseBtn = $("#searchCloseBtn");
 
   var composeContext = $("#composeContext");
   var ctxAuthor = $("#ctxAuthor");
@@ -321,17 +313,8 @@ window.addEventListener("DOMContentLoaded", function () {
     } catch (e) { return null; }
   }
 
-  // ---------- CONNECTION PILL ----------
-  function setConnectionState(state) {
-    if (!connectionPill) return;
-    connectionPill.dataset.state = state;
-    var key = state === "connected" ? "connected"
-            : state === "connecting" ? "connecting"
-            : "disconnected";
-    if (connectionLabel) connectionLabel.textContent = T(key);
-  }
-
   // ---------- WEBSOCKET ----------
+
   function connectWS() {
     if (isConnecting) return;
     if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
@@ -340,13 +323,11 @@ window.addEventListener("DOMContentLoaded", function () {
     if (!wsUrl) { showServerView(); return; }
 
     isConnecting = true;
-    setConnectionState("connecting");
     ws = new WebSocket(wsUrl);
 
     ws.addEventListener("open", function () {
       isConnecting = false;
       reconnectAttempts = 0;
-      setConnectionState("connected");
       drainOutbox();
     });
 
@@ -358,7 +339,6 @@ window.addEventListener("DOMContentLoaded", function () {
 
     ws.addEventListener("close", function () {
       isConnecting = false;
-      setConnectionState("disconnected");
       if (me) {
         var delay = Math.min(30000, 1000 * Math.pow(1.6, reconnectAttempts++));
         clearTimeout(reconnectTimer);
@@ -818,13 +798,12 @@ window.addEventListener("DOMContentLoaded", function () {
       return;
     }
     var list = conversations.get(activePeerId) || [];
-    var filter = (searchInput && !searchBar.classList.contains("hidden") ? (searchInput.value || "").toLowerCase().trim() : "");
-    var filtered = filter ? list.filter(function (m) { return (m.text || "").toLowerCase().includes(filter); }) : list;
+    var filtered = list;
 
     if (filtered.length === 0) {
       var div = document.createElement("div");
       div.className = "bubble system";
-      div.textContent = filter ? T("noResults") : T("e2eChat");
+      div.textContent = T("e2eChat");
       messagesContainer.appendChild(div);
     } else {
       var lastDate = null;
@@ -1415,18 +1394,6 @@ window.addEventListener("DOMContentLoaded", function () {
     return oldHandleIncoming(data);
   };
 
-
-  // ---------- SEARCH ----------
-  if (searchToggleBtn) searchToggleBtn.addEventListener("click", function () {
-    if (!activePeerId) return showToast(T("selectFriendFirst"), "error");
-    searchBar.classList.toggle("hidden");
-    if (!searchBar.classList.contains("hidden")) { searchInput.focus(); }
-    else { searchInput.value = ""; renderChat(); }
-  });
-  if (searchCloseBtn) searchCloseBtn.addEventListener("click", function () {
-    searchBar.classList.add("hidden"); searchInput.value = ""; renderChat();
-  });
-  if (searchInput) searchInput.addEventListener("input", function () { renderChat(); });
 
   // ---------- SETTINGS MODAL ----------
   function openSettings() {
