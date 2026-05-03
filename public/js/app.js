@@ -354,6 +354,12 @@ window.addEventListener("DOMContentLoaded", function () {
   function send(obj) {
     if (ws && ws.readyState === WebSocket.OPEN) {
       try { ws.send(JSON.stringify(obj)); } catch (e) {}
+    } else {
+      try {
+        var outbox = JSON.parse(localStorage.getItem("sc_outbox") || "[]");
+        outbox.push(obj);
+        localStorage.setItem("sc_outbox", JSON.stringify(outbox));
+      } catch (e) {}
     }
   }
 
