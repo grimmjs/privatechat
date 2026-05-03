@@ -1086,8 +1086,8 @@
     }
   }
 
-  function openSidebar() { sidebar.classList.add("open"); if (sidebarOverlay) sidebarOverlay.classList.add("open"); }
-  function closeSidebar() { sidebar.classList.remove("open"); if (sidebarOverlay) sidebarOverlay.classList.remove("open"); }
+  function openSidebar() { console.log("[UI] Opening sidebar"); sidebar.classList.add("open"); if (sidebarOverlay) sidebarOverlay.classList.add("open"); }
+  function closeSidebar() { console.log("[UI] Closing sidebar"); sidebar.classList.remove("open"); if (sidebarOverlay) sidebarOverlay.classList.remove("open"); }
 
   // ---------- HELPERS ----------
   function escapeHtml(s) {
@@ -1571,9 +1571,18 @@
   });
   if (isIOS() && !isInStandaloneMode() && !installBannerDismissed) setTimeout(createInstallBanner, 3000);
 
-  openSidebarBtn.addEventListener("click", openSidebar);
-  closeSidebarBtn.addEventListener("click", closeSidebar);
-  if (sidebarOverlay) sidebarOverlay.addEventListener("click", closeSidebar);
+  if (openSidebarBtn) {
+    openSidebarBtn.addEventListener("click", openSidebar);
+    openSidebarBtn.addEventListener("touchstart", function(e) { e.preventDefault(); openSidebar(); }, { passive: false });
+  }
+  if (closeSidebarBtn) {
+    closeSidebarBtn.addEventListener("click", closeSidebar);
+    closeSidebarBtn.addEventListener("touchstart", function(e) { e.preventDefault(); closeSidebar(); }, { passive: false });
+  }
+  if (sidebarOverlay) {
+    sidebarOverlay.addEventListener("click", closeSidebar);
+    sidebarOverlay.addEventListener("touchstart", function(e) { e.preventDefault(); closeSidebar(); }, { passive: false });
+  }
 
   // Setup profile modal tabs
   $all(".settings-tab-btn").forEach(function (btn) {

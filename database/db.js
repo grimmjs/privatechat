@@ -43,7 +43,8 @@ if (isPg) {
     sql = pgTransform(sql)
     const isInsert = /^\s*INSERT\s+INTO\s+/i.test(sql) && !/RETURNING/i.test(sql) && !/ON\s+CONFLICT/i.test(sql)
     if (isInsert) {
-      sql = sql.trim().replace(/;?$/, "") + " RETURNING id;"
+      // Strip trailing semicolons and comments to safely append RETURNING
+      sql = sql.trim().replace(/;?$/, "").replace(/\s*--.*$/, "") + " RETURNING id;"
     }
     const result = await pool.query(sql, params)
     const lastID = result.rows[0]?.id ?? null
