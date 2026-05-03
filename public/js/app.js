@@ -1410,9 +1410,6 @@
     return oldHandleIncoming(data);
   };
 
-  openSidebarBtn.addEventListener("click", openSidebar);
-  closeSidebarBtn.addEventListener("click", closeSidebar);
-  if (sidebarOverlay) sidebarOverlay.addEventListener("click", closeSidebar);
 
   // ---------- SEARCH ----------
   if (searchToggleBtn) searchToggleBtn.addEventListener("click", function () {

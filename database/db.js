@@ -106,7 +106,7 @@ async function fixPostgresTypes() {
   if (!isPg) return
   const columnsToFix = [
     "created_at", "timestamp", "expires_at", "last_seen", 
-    "banned_at", "deleted_at", "edited_at", "joined_at", "resolved_at"
+    "banned_at", "deleted_at", "edited_at", "joined_at", "resolved_at", "key_id"
   ]
   const tables = ["users", "friends", "blocks", "reports", "sessions", "messages", "reactions", "polls", "poll_votes", "files", "link_previews", "auth_attempts", "audit_log", "groups", "group_members", "group_messages", "sticker_packs", "stickers", "push_subscriptions", "prekeys", "devices"]
   

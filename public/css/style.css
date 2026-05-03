@@ -309,7 +309,7 @@ textarea { resize: none; }
   background: rgba(0, 0, 0, 0.5);
   z-index: 19;
 }
-.sidebar-overlay.visible { display: block; }
+.sidebar-overlay.open { display: block; }
 
 .sidebar {
   background: var(--bg-elev);
@@ -1108,7 +1108,7 @@ textarea { resize: none; }
     opacity: 0; pointer-events: none;
     transition: opacity 0.25s ease;
   }
-  .sidebar-overlay.open { opacity: 1; pointer-events: auto; }
+  .sidebar-overlay.open { display: block; opacity: 1; pointer-events: auto; }
   .mobile-only { display: inline-flex; }
   .tablet-up { display: none; }
   .messages-container { padding: 14px; }
